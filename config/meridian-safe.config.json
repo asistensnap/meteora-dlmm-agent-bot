@@ -1,0 +1,124 @@
+{
+  "enabled": true,
+  "preset": "moderate",
+  "dryRun": true,
+  "liveExecutionEnabled": false,
+  "telegramGatewayAgent": "Lio",
+  "agents": {
+    "lio": {
+      "profile": "telegram-lio",
+      "modelRole": "operator"
+    },
+    "cala": {
+      "profile": "telegram-cala",
+      "modelRole": "screening"
+    },
+    "konlin": {
+      "profile": "telegram-konlin",
+      "modelRole": "analyst"
+    }
+  },
+  "screening": {
+    "strategy": "BID_ASK",
+    "timeframe": "4h",
+    "minTvl": 10000,
+    "minVolume24h": 25000,
+    "minFeeTvlRatio24h": 0.004,
+    "minPoolAgeHours": 12,
+    "alertScoreThreshold": 70,
+    "maxClaudePoolCount": 5,
+    "maxAlertsPerScan": 3,
+    "screeningIntervalMinutes": 30,
+    "managementIntervalMinutes": 10,
+    "tokenRiskMode": "BALANCED"
+  },
+  "strategies": {
+    "evilPanda": {
+      "name": "EvilPanda Strategy",
+      "enabled": true,
+      "timeframe": "15m",
+      "coinSelection": {
+        "dexscreenerMinMarketCapUsd": 250000,
+        "dexscreenerMinVolume24hUsd": 1000000,
+        "sortBy": "AGE",
+        "ignoreCoinsWithoutPicture": true,
+        "gmgnMinFeesUsd": 30,
+        "gmgnMaxPhishingPercent": 30,
+        "gmgnMaxBundlingPercent": 60,
+        "gmgnMaxInsidersPercent": 10,
+        "gmgnMaxTop10Percent": 30
+      },
+      "entry": {
+        "indicator": "Supertrend",
+        "trigger": "15m price break above Supertrend",
+        "position": "one-sided SOL DLMM",
+        "allowedStrategies": ["SPOT", "BID_ASK"],
+        "preferredBinSteps": [80, 100, 125],
+        "rangePercent": ["-86%", "-94%"]
+      },
+      "poolChoosing": {
+        "stage": "after coin selection, before entry",
+        "purpose": "keep DLMM position in range long enough to print fees and reduce out-of-range impairment loss",
+        "preferredBinSteps": [80, 100, 125],
+        "preferredRangePercent": ["-86%", "-94%"],
+        "veryNewCoinMaxAgeHours": 12,
+        "veryNewCoinPreferredFeePools": ["5%", "10%"],
+        "avoidIf": [
+          "pool cannot support planned one-sided SOL DLMM",
+          "range becomes too narrow for expected dump",
+          "fee tier is weak for new/high-risk coin",
+          "pool is likely to go out of range too quickly"
+        ],
+        "owner": {
+          "cala": "hard filter and score",
+          "konlin": "final validation",
+          "lio": "workflow enforcement and reporting"
+        }
+      },
+      "exit": {
+        "version": "EvilPanda Exit Strategy v2",
+        "indicators": ["Bollinger Bands", "MACD", "RSI"],
+        "rsiLength": 2,
+        "rsiUpperLimit": 90,
+        "confluenceRequired": 2,
+        "signals": [
+          "RSI(2) close above 90 plus price close above BB upper line",
+          "RSI(2) close above 90 plus MACD first green histogram"
+        ],
+        "operatingContext": [
+          "earn fees during dump and exit on bounce strength",
+          "exit depends on trend stage and original position plan",
+          "multiple indicators firing together is a stronger exit signal",
+          "prefer systematic exit over trying to catch exact top"
+        ],
+        "decisionOrder": [
+          "validate original coin/pool thesis",
+          "check position is in range and still printing fees",
+          "check RSI(2), BB upper close, and MACD histogram",
+          "exit on at least two configured indicators",
+          "write every close to Trade Log"
+        ],
+        "emergencyExitReasons": [
+          "coin risk changes materially",
+          "liquidity or volume collapses",
+          "pool is out of useful range",
+          "original entry was a mistake",
+          "market becomes dry or unsafe"
+        ]
+      },
+      "riskRules": {
+        "noNewPositionsAfterLocalHour": 18,
+        "minPortfolioPositionCount": 6,
+        "noRevengeTrading": true,
+        "doNothingInDryMarket": true,
+        "liveExecutionEnabled": false
+      }
+    }
+  },
+  "notes": [
+    "Meridian-safe configuration imported from Meridian concepts.",
+    "Wallet/private-key/live execution are disabled in this Meteora DLMM project.",
+    "Existing Lio/Cala/Konlin bots are reused; no new Telegram bot is required.",
+    "Lio is the command gateway; Cala posts Screening output and Konlin posts Analyst output when their bot tokens are configured."
+  ]
+}

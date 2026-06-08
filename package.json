@@ -1,0 +1,44 @@
+{
+  "name": "meteora-dlmm-agent-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "scan": "tsx src/index.ts --scan-once",
+    "db:init": "tsx src/database/db.ts --init",
+    "lint": "tsc --noEmit",
+    "telegram:ids": "node tools/get-telegram-ids.js",
+    "telegram:setup": "node tools/telegram-direct-setup.js",
+    "hermes:cmd": "node tools/hermes-telegram-command.js",
+    "meridian:setup": "node tools/meridian-safe-setup.js",
+    "meridian:setup:safe": "node tools/meridian-safe-setup.js safe",
+    "meridian:setup:moderate": "node tools/meridian-safe-setup.js moderate",
+    "meridian:setup:degen": "node tools/meridian-safe-setup.js degen",
+    "meridian:auto:setup": "node tools/setup-meridian-full-auto.js",
+    "meridian:auto:setup:live": "node tools/setup-meridian-full-auto.js --live",
+    "meridian:auto:dry": "node tools/start-meridian.js",
+    "meridian:auto:live": "node tools/start-meridian.js --live",
+    "ready": "node tools/check-portable-ready.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "better-sqlite3": "^12.10.0",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
+    "node-cron": "^3.0.3",
+    "node-telegram-bot-api": "^0.66.0",
+    "pino": "^9.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/node-telegram-bot-api": "^0.64.7",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
