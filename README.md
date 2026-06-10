@@ -6,6 +6,12 @@ This setup focuses on connection, model routing, topic routing, health checks, t
 
 For full Windows/macOS/Linux deployment and GitHub setup, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
+For Obsidian second-brain memory, see [docs/OBSIDIAN_SECOND_BRAIN.md](./docs/OBSIDIAN_SECOND_BRAIN.md).
+
+For moving this project to a new PC/VPS without touching MCP, see [docs/MOVE_TO_NEW_PC.md](./docs/MOVE_TO_NEW_PC.md).
+
+For the EvilPanda strategy skill, see [skills/evilpanda-strategy/SKILL.md](./skills/evilpanda-strategy/SKILL.md).
+
 ## Private Chat Test
 
 The initial local test uses:
@@ -102,6 +108,27 @@ npm run build
 ```
 
 The project `.env` is created with safe defaults. Fill `LIO_TELEGRAM_BOT_TOKEN` only if you do not want to rely on an existing Hermes `TELEGRAM_BOT_TOKEN` fallback.
+
+## Obsidian And Skill
+
+Obsidian is used as the project second brain. It stores project memory, trade lessons, decision logs, mistake logs, and EvilPanda strategy notes.
+
+Do not store secrets in Obsidian.
+
+Recommended local vault folder:
+
+```text
+C:\Users\EBBE\Documents\Obsidian\Meteora Dlmm\Meteora DLMM Agent Bot
+```
+
+Install the EvilPanda skill into Codex on a new Windows PC:
+
+```powershell
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.codex\skills\evilpanda-strategy"
+Copy-Item ".\skills\evilpanda-strategy\SKILL.md" "$env:USERPROFILE\.codex\skills\evilpanda-strategy\SKILL.md" -Force
+```
+
+This repo does not require changing Claude MCP or TradingView MCP.
 
 ## Telegram Commands
 

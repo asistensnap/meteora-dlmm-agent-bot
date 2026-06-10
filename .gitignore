@@ -3,6 +3,8 @@ dist/
 .env
 .env.*
 !.env.example
+ISI_ENV_*.env
+Meteora-DLMM-ENV-ISI-DI-SINI.txt
 *.log
 data/*
 !data/.gitkeep
