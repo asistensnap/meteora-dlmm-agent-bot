@@ -12,6 +12,8 @@ For moving this project to a new PC/VPS without touching MCP, see [docs/MOVE_TO_
 
 For the EvilPanda strategy skill, see [skills/evilpanda-strategy/SKILL.md](./skills/evilpanda-strategy/SKILL.md).
 
+For Gbrain memory setup and Hermes profile usage, see [docs/GBRAIN.md](./docs/GBRAIN.md).
+
 ## Private Chat Test
 
 The initial local test uses:
@@ -129,6 +131,48 @@ Copy-Item ".\skills\evilpanda-strategy\SKILL.md" "$env:USERPROFILE\.codex\skills
 ```
 
 This repo does not require changing Claude MCP or TradingView MCP.
+
+## Gbrain Memory
+
+Gbrain can be used as a local memory layer for Obsidian notes and Hermes profiles.
+
+Current intended usage:
+
+- manual activation on desktop
+- manual Obsidian import
+- no auto-start by default
+- no MCP changes required
+
+Manual Windows check:
+
+```powershell
+$env:PATH='C:\Users\EBBE\.bun\bin;' + $env:PATH
+gbrain --version
+gbrain stats
+```
+
+Update memory after editing Obsidian:
+
+```powershell
+$env:PATH='C:\Users\EBBE\.bun\bin;' + $env:PATH
+gbrain import "C:\Users\EBBE\Documents\Obsidian\Meteora Dlmm\Meteora DLMM Agent Bot" --no-embed
+gbrain stats
+```
+
+Hermes profiles can use the `gbrain` skill:
+
+- `telegram-cimot`
+- `telegram-cala`
+- `telegram-lio`
+- `telegram-konlin`
+
+Example Hermes prompt:
+
+```text
+Gunakan skill gbrain untuk membaca memory project Meteora DLMM.
+```
+
+See [docs/GBRAIN.md](./docs/GBRAIN.md).
 
 ## Telegram Commands
 

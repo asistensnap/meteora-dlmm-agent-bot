@@ -122,6 +122,43 @@ mkdir -p ~/.codex/skills/evilpanda-strategy
 cp skills/evilpanda-strategy/SKILL.md ~/.codex/skills/evilpanda-strategy/SKILL.md
 ```
 
+## Install Gbrain On New PC / VPS
+
+Gbrain is optional memory/context. It does not require changing MCP.
+
+Clone and install:
+
+```bash
+git clone https://github.com/garrytan/gbrain.git ~/gbrain
+cd ~/gbrain
+```
+
+Install Bun with the official Bun installer, then:
+
+```bash
+bun install
+bun link
+gbrain --version
+gbrain init --pglite --no-embedding
+```
+
+Import Obsidian memory after copying the vault:
+
+```bash
+gbrain import "$HOME/Documents/Obsidian/Meteora Dlmm/Meteora DLMM Agent Bot" --no-embed
+gbrain stats
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:PATH='C:\Users\EBBE\.bun\bin;' + $env:PATH
+gbrain import "C:\Users\EBBE\Documents\Obsidian\Meteora Dlmm\Meteora DLMM Agent Bot" --no-embed
+gbrain stats
+```
+
+Keep Gbrain manual on desktop to avoid extra background load. Use VPS for 24/7 memory services later if needed.
+
 ## Move Obsidian Notes
 
 Copy the Obsidian folder to your vault:
