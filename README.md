@@ -47,13 +47,7 @@ Topic names must not include Lio, Cala, or Konlin.
 - Cala -> active Hermes profile model -> Screening -> @Calalio_bot
 - Konlin -> active Hermes profile model -> Analyst -> @KOnlin_bot
 
-Default model intent:
-
-- Lio: DeepSeek-compatible operator model
-- Cala: DeepSeek-compatible screening model
-- Konlin: Claude-compatible analyst model
-
-The actual runtime model is the model selected in Hermes Desktop for each profile. SOUL.md should not be treated as a hard model lock.
+The runtime model is always the model selected in Hermes Desktop for each profile. SOUL.md does not set, prefer, or lock any provider.
 
 Lio is the main Telegram gateway for commands. Cala and Konlin are also enabled as Hermes profiles so their own bot identities can post routed workflow output:
 
@@ -205,7 +199,7 @@ Profiles:
 - `telegram-cala` = Meteora DLMM screening scanner
 - `telegram-konlin` = Meteora DLMM Claude analyst
 
-Model changes should be made in Hermes Desktop profile/model settings. The SOUL.md files now say to follow the active Hermes Desktop profile model so the agents do not get locked to one fixed model.
+Model changes should be made in Hermes Desktop profile/model settings. The SOUL.md files follow the active Hermes Desktop profile model and do not define any default provider.
 
 See [docs/HERMES_SOULS.md](./docs/HERMES_SOULS.md).
 
