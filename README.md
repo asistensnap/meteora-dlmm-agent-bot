@@ -14,6 +14,8 @@ For the EvilPanda strategy skill, see [skills/evilpanda-strategy/SKILL.md](./ski
 
 For Gbrain memory setup and Hermes profile usage, see [docs/GBRAIN.md](./docs/GBRAIN.md).
 
+For Hermes Desktop SOUL.md profile prompts, see [docs/HERMES_SOULS.md](./docs/HERMES_SOULS.md).
+
 ## Private Chat Test
 
 The initial local test uses:
@@ -173,6 +175,29 @@ Gunakan skill gbrain untuk membaca memory project Meteora DLMM.
 ```
 
 See [docs/GBRAIN.md](./docs/GBRAIN.md).
+
+## Hermes SOUL.md Profiles
+
+Hermes Desktop profile prompts are stored in active profile folders under:
+
+```text
+C:\Users\EBBE\AppData\Local\hermes\profiles
+```
+
+This repo keeps backup/template copies in:
+
+```text
+hermes/souls/
+```
+
+Profiles:
+
+- `telegram-cimot` = separate Cimot helper
+- `telegram-lio` = Meteora DLMM operator
+- `telegram-cala` = Meteora DLMM screening scanner
+- `telegram-konlin` = Meteora DLMM Claude analyst
+
+See [docs/HERMES_SOULS.md](./docs/HERMES_SOULS.md).
 
 ## Telegram Commands
 
