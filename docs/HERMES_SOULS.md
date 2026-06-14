@@ -34,6 +34,21 @@ These files are documentation and migration templates. The active files are stil
 
 ## Agent Roles
 
+## Model Behavior
+
+The active model is controlled by Hermes Desktop profile/model settings.
+
+SOUL.md does not hard-lock the runtime model. Each profile now says to follow the active Hermes Desktop profile model.
+
+Default intent:
+
+- `telegram-cimot`: no fixed model
+- `telegram-lio`: DeepSeek-compatible operator model
+- `telegram-cala`: DeepSeek-compatible screening model
+- `telegram-konlin`: Claude-compatible analyst model
+
+If EBBE changes the model in Hermes Desktop, the agent should keep its role and use the newly selected active model.
+
 ### Cimot
 
 Profile:
@@ -88,7 +103,8 @@ telegram-cala
 Purpose:
 
 - Meteora DLMM Screening / Scanner agent.
-- Uses DeepSeek.
+- Uses the active Hermes Desktop profile model.
+- Default intent is a DeepSeek-compatible screening model.
 - Filters, scores, and shortlists candidates.
 - Applies local strategy selection: CURVE, SPOT, BID_ASK, AVOID.
 - Applies EvilPanda screening rules when relevant.
@@ -111,7 +127,8 @@ telegram-konlin
 Purpose:
 
 - Meteora DLMM Analyst agent.
-- Uses Claude.
+- Uses the active Hermes Desktop profile model.
+- Default intent is a Claude-compatible analyst model.
 - Analyzes only shortlisted candidates from Cala/Lio.
 - Validates strategy, allocation, range, confidence, and exit rule.
 - Applies EvilPanda validation when relevant.
