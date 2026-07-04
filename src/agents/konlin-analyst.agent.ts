@@ -1,3 +1,4 @@
+import type { HeronBreakdownFlag, HeronDurability, HeronNetCheck } from "../strategy/heron-strategy.js";
 import type { CalaDummyCandidate } from "./cala-screening.agent.js";
 
 export interface KonlinDummyAnalysis {
@@ -14,6 +15,11 @@ export interface KonlinDummyAnalysis {
     maxAllocation: string;
     exitRule: string;
     confidence: number;
+    /** Set when validated under a named strategy profile (e.g. "HERON Strategy"). */
+    strategyName?: string;
+    durability?: HeronDurability;
+    netCheck?: HeronNetCheck;
+    breakdownWatch?: HeronBreakdownFlag[];
   }>;
   bestPool: string;
   summary: string;
@@ -50,8 +56,18 @@ export class KonlinAnalystAgent {
         strategy: "BID_ASK" as const,
         range: "WIDE" as const,
         maxAllocation: "0%",
-        exitRule: "Paper only. Avoid real exposure unless high-risk mode is enabled.",
-        confidence: 74
+        exitRule: "HERON: bounce (RSI(2)>90 + BB upper or first green MACD histogram), breakdown signals, net stop -12%, or 12h time stop — first to fire wins.",
+        confidence: 74,
+        strategyName: "HERON Strategy",
+        durability: {
+          volume1hActive: true,
+          feeTvlOk: true,
+          rangeDurabilityOk: false
+        },
+        netCheck: {
+          expectedNetBeatsVaultHurdle: false
+        },
+        breakdownWatch: [] as HeronBreakdownFlag[]
       }
     ].filter((result) => poolAddresses.has(result.poolAddress));
 

@@ -12,6 +12,8 @@ For moving this project to a new PC/VPS without touching MCP, see [docs/MOVE_TO_
 
 For the EvilPanda strategy skill, see [skills/evilpanda-strategy/SKILL.md](./skills/evilpanda-strategy/SKILL.md).
 
+For the HERON strategy skill, see [skills/heron-strategy/SKILL.md](./skills/heron-strategy/SKILL.md).
+
 For Gbrain memory setup and Hermes profile usage, see [docs/GBRAIN.md](./docs/GBRAIN.md).
 
 For Hermes Desktop SOUL.md profile prompts, see [docs/HERMES_SOULS.md](./docs/HERMES_SOULS.md).
@@ -220,6 +222,7 @@ See [docs/HERMES_SOULS.md](./docs/HERMES_SOULS.md).
 - `/trade_summary`
 - `/trade_log_test`
 - `/evilpanda_strategy`
+- `/heron_strategy`
 - `/positions_net`
 - `/killswitch_status`
 - `/killswitch_reset`
@@ -232,6 +235,7 @@ Expected dummy workflow:
 - `/trade_log` and `/trade_summary` post closed-position PnL data to Trade Log.
 - `/trade_log_test` posts dummy positive/negative closed positions to Trade Log.
 - `/evilpanda_strategy` shows the configured EvilPanda Strategy rules.
+- `/heron_strategy` shows the configured HERON Strategy rules.
 - Errors post to Troubleshoot.
 
 ## EvilPanda Strategy
@@ -281,6 +285,16 @@ Behavior:
 - Divide portfolio into at least 6 positions.
 - Do not open new positions after 18:00 local time.
 - No revenge DLMM.
+
+## HERON Strategy
+
+`HERON Strategy` is an evolution of EvilPanda, configured beside it (skill:
+[skills/heron-strategy/SKILL.md](./skills/heron-strategy/SKILL.md), command:
+`/heron_strategy`, select with `STRATEGY_PROFILE=HERON`). Core difference in three lines:
+
+- Asymmetric bounce-vs-breakdown exit: keeps EvilPanda's RSI(2)>90 bounce exit but cuts immediately on breakdown signals, a −12% net stop, or a 12h time stop — no waiting for a bounce that may never come.
+- Net-of-IL accounting: positions are judged by fees earned minus impermanent/conversion loss every cycle (`/positions_net`), never by fee count alone, with a passive-vault opportunity-cost hurdle.
+- Durability entry gate: enters only pools with active 1h volume, fee/TVL able to out-print conversion loss, and range durability — plus a daily kill-switch at 10% net drawdown (`MAX_DAILY_DRAWDOWN_PCT`).
 
 ## Position Management (Phase 2, simulated)
 

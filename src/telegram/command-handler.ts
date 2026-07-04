@@ -142,6 +142,10 @@ export class CommandHandler {
       await this.handle(msg.chat.id, "/evilpanda_strategy", () => this.router.sendToTopic("SYSTEM", this.lio.evilPandaStrategy(), msg.chat.id));
     });
 
+    bot.onText(/^\/heron_strategy$/, async (msg) => {
+      await this.handle(msg.chat.id, "/heron_strategy", () => this.router.sendToTopic("SYSTEM", this.lio.heronStrategy(), msg.chat.id));
+    });
+
     bot.onText(/^\/positions_net$/, async (msg) => {
       await this.handle(msg.chat.id, "/positions_net", () => this.router.sendToTopic("TRADE_LOG", this.management.positionsNetMessage(), msg.chat.id));
     });

@@ -2,6 +2,7 @@ import { config, getProviderStatus, getTelegramStatus } from "../config.js";
 import { systemHealth } from "../health/system-health.js";
 import { ModelRouter } from "../model-router.js";
 import { evilPandaStrategyPrompt } from "../strategy/evilpanda-strategy.js";
+import { heronStrategyPrompt } from "../strategy/heron-strategy.js";
 import { topicStatusLines } from "../telegram/topic-manager.js";
 import { TradeLogService } from "../trade/trade-log.js";
 import { CalaScreeningAgent } from "./cala-screening.agent.js";
@@ -33,6 +34,7 @@ export class LioOperatorAgent {
       "/trade_summary",
       "/trade_log_test",
       "/evilpanda_strategy",
+      "/heron_strategy",
       "/positions_net",
       "/killswitch_status",
       "/killswitch_reset",
@@ -264,6 +266,10 @@ export class LioOperatorAgent {
 
   evilPandaStrategy(): string {
     return evilPandaStrategyPrompt();
+  }
+
+  heronStrategy(): string {
+    return heronStrategyPrompt();
   }
 }
 

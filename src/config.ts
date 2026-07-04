@@ -78,7 +78,8 @@ const envSchema = z.object({
   PAPER_NOTIONAL_USD: z.coerce.number().positive().default(1000),
   MANAGEMENT_INTERVAL_MINUTES: z.coerce.number().int().positive().optional(),
   MANAGEMENT_CYCLE_ENABLED: envBoolean.default(true),
-  WALLET_PUBLIC_ADDRESS: z.string().optional()
+  WALLET_PUBLIC_ADDRESS: z.string().optional(),
+  STRATEGY_PROFILE: z.enum(["EVILPANDA", "HERON", "DEFAULT"]).default("EVILPANDA")
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -189,6 +190,9 @@ export const config = {
     mode: hasEnv("RISK_MODE") ? env.RISK_MODE : meridianConfig.screening.tokenRiskMode
   },
   meridian: meridianConfig,
+  strategy: {
+    profile: env.STRATEGY_PROFILE
+  },
   positions: {
     maxDailyDrawdownPct: env.MAX_DAILY_DRAWDOWN_PCT,
     paperNotionalUsd: env.PAPER_NOTIONAL_USD,

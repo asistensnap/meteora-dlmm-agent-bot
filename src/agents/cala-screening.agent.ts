@@ -1,3 +1,5 @@
+import type { HeronDurability } from "../strategy/heron-strategy.js";
+
 export interface CalaDummyCandidate {
   poolAddress: string;
   pair: string;
@@ -9,6 +11,10 @@ export interface CalaDummyCandidate {
   volume24h: number;
   feeTvl24h: number;
   apr24h: number;
+  /** Set when the candidate is screened under a named strategy profile (e.g. "HERON Strategy"). */
+  strategyName?: string;
+  /** HERON durability gate fields (volume1hActive, feeTvlOk, rangeDurabilityOk). */
+  durability?: HeronDurability;
 }
 
 export interface CalaDummyResult {
@@ -59,7 +65,13 @@ export class CalaScreeningAgent {
         tvl: 85_000,
         volume24h: 950_000,
         feeTvl24h: 0.115,
-        apr24h: 420
+        apr24h: 420,
+        strategyName: "HERON Strategy",
+        durability: {
+          volume1hActive: true,
+          feeTvlOk: true,
+          rangeDurabilityOk: false
+        }
       }
     ] satisfies CalaDummyCandidate[];
 

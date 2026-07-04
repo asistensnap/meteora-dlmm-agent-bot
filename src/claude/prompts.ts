@@ -95,3 +95,42 @@ Behavior:
 - No guaranteed profit.
 
 Return compact JSON only.`;
+
+export const HERON_ANALYST_PROMPT = `${CLAUDE_ANALYST_PROMPT}
+
+Additional strategy context:
+Strategy name: HERON Strategy (evolution of EvilPanda).
+
+Core difference from EvilPanda:
+- Hold a dump only while fees are still accruing and demand is intact; CUT on breakdown signals, a time stop, or a net-loss stop.
+- Judge every position by net (fees minus impermanent/conversion loss), never fee count alone.
+- Enter only pools that can plausibly out-print conversion loss, and only when expected net beats parking SOL passively (Dynamic Vault hurdle; soft check, lean conservative).
+
+Coin selection:
+- Dexscreener market cap >= $250k and 24h volume >= $1,000,000.
+- Hard floor: ignore tokens younger than 2h.
+- Mint authority and freeze authority must both be revoked; reject if either is active.
+- GMGN (tightened): fees > 30, phishing < 30%, bundling < 40%, insiders < 10%, top10 < 30%.
+- Data sources unavailable => DATA_MISSING, never high confidence.
+
+Entry (15m default):
+- Price break above Supertrend AND durability gate: 1h volume still active (not a single-candle spike), pool fee/TVL can offset conversion loss, pool unlikely to leave useful range before printing meaningful fees.
+- One-sided SOL DLMM. Prefer BID_ASK below price for dump accumulation, SPOT for steadier capture. Prefer 80/100/125 bin steps.
+- Range: volatility-scaled wide downside band ~1.5x-2x recent typical drawdown (-86% to -94% acceptable default). Never tight.
+
+Exit (three parallel paths, first wins):
+1. Bounce (EvilPanda v2): RSI(2) close above 90 + BB upper close, OR RSI(2) close above 90 + MACD first green histogram.
+2. Breakdown: close immediately on volume collapse, holders fleeing, support broken on rising sell volume, rug/authority/blacklist signal, TVL collapse, or stuck out of useful range.
+3. Hard stops: net stop at stopLossPct=-12% net-of-IL with no bounce setup; time stop after maxHoldHours=12 with net still negative.
+- Every close must be logged with pnlUsd, pnlPercent, source, and exitReason.
+
+For each pool, in addition to the base fields, also return:
+"strategyName": "HERON Strategy",
+"durability": { "volume1hActive": true, "feeTvlOk": true, "rangeDurabilityOk": true },
+"netCheck": { "expectedNetBeatsVaultHurdle": true },
+"breakdownWatch": []
+
+Risk:
+- Daily kill-switch at maxDailyDrawdownPct=10 cumulative net drawdown: stop opening, recommend CLOSE-ALL, wait for human review.
+- At least 6 positions; reservePct=20 parked passively; no new positions after 18:00 local; no revenge trading.
+- No guaranteed profit. Return compact JSON only.`;

@@ -1,4 +1,5 @@
 import { config } from "../config.js";
+import { heronBreakdownWatch } from "../strategy/heron-strategy.js";
 import { logger } from "../utils/logger.js";
 import { KillSwitchService } from "./kill-switch.js";
 import { NetPnlTracker, type PositionNetStatus } from "./position-tracker.js";
@@ -46,17 +47,20 @@ export class ManagementCycle {
       const report = await this.tracker.runCycle();
 
       for (const oor of report.newOorAlerts) {
+        const status = report.positions.find((position) => position.positionId === oor.positionId);
+        const heronFlags = config.strategy.profile === "HERON" && status ? heronBreakdownWatch(status, status.entryTimestamp) : [];
         const message = [
           "⚠️ OUT-OF-RANGE ALERT (simulated)",
           "",
           `Position: #${oor.positionId} ${oor.pair}`,
           `Direction: price left range ${oor.direction === "UP" ? "upward (above entry band)" : "downward (below band floor)"}`,
           `Out of range since: ${oor.oorSince}`,
+          heronFlags.length ? `HERON breakdown watch: ${heronFlags.join(", ")}` : "",
           "",
           "OOR = stopped position, not a neutral state.",
           "No on-chain action taken (scanner mode)."
-        ].join("\n");
-        logger.warn({ positionId: oor.positionId, direction: oor.direction }, "position out of range");
+        ].filter(Boolean).join("\n");
+        logger.warn({ positionId: oor.positionId, direction: oor.direction, heronFlags }, "position out of range");
         if (sendAlert) await sendAlert("ENTRY", message);
       }
 
@@ -119,9 +123,11 @@ function formatStatus(status: PositionNetStatus): string {
   const oor = status.inRange
     ? "IN_RANGE"
     : `OUT_OF_RANGE${status.oorMinutes !== undefined ? ` for ${status.oorMinutes}m` : ""}`;
+  const heronFlags = config.strategy.profile === "HERON" ? heronBreakdownWatch(status, status.entryTimestamp) : [];
   return [
     `#${status.positionId} ${status.pair} [${status.strategy}]`,
     `  Fees est: $${status.feesEarnedUsd.toFixed(2)} | IL est: $${status.ilUsd.toFixed(2)} | Net: $${status.netUsd.toFixed(2)} (${status.netPct.toFixed(2)}%)`,
-    `  Range: ${oor}${status.dataStatus !== "OK" ? ` | Data: ${status.dataStatus}` : ""}`
-  ].join("\n");
+    `  Range: ${oor}${status.dataStatus !== "OK" ? ` | Data: ${status.dataStatus}` : ""}`,
+    heronFlags.length ? `  HERON breakdown watch: ${heronFlags.join(", ")}` : ""
+  ].filter(Boolean).join("\n");
 }

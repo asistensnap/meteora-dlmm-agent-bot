@@ -1,6 +1,6 @@
 import { config } from "../config.js";
 import { ClaudeClient } from "../claude/claude.client.js";
-import { CLAUDE_ANALYST_PROMPT } from "../claude/prompts.js";
+import { getStrategy } from "../strategy/strategy-registry.js";
 import type { ClaudeAnalysisResult, ScoredCandidate } from "../types.js";
 import { nowIso } from "../utils/time.js";
 
@@ -31,7 +31,7 @@ export class ClaudeAnalystAgent {
       }))
     };
 
-    const raw = await this.claude.analyze(CLAUDE_ANALYST_PROMPT, payload);
+    const raw = await this.claude.analyze(getStrategy(config.strategy.profile).analystPrompt, payload);
     return parseClaudeResult(raw, pools);
   }
 }

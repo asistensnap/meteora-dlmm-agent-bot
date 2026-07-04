@@ -10,6 +10,7 @@ export interface PositionNetStatus {
   pair: string;
   poolAddress: string;
   strategy: string;
+  entryTimestamp: string;
   notionalUsd: number;
   feesEarnedUsd: number;
   ilUsd: number;
@@ -200,6 +201,7 @@ function toStatus(position: OpenPaperPosition, tracking: PositionTrackingRow | u
     pair: position.pair,
     poolAddress: position.pool_address,
     strategy: position.strategy,
+    entryTimestamp: position.entry_timestamp,
     notionalUsd: notional,
     feesEarnedUsd: tracking?.fees_earned_usd ?? 0,
     ilUsd: tracking?.il_usd ?? 0,
