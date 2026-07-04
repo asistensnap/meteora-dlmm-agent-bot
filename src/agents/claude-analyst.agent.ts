@@ -36,19 +36,36 @@ export class ClaudeAnalystAgent {
   }
 }
 
+const VALID_DECISIONS = new Set(["ENTER_SMALL", "WATCHLIST", "PAPER_ONLY", "AVOID"]);
+const VALID_STRATEGIES = new Set(["CURVE", "SPOT", "BID_ASK", "AVOID"]);
+const VALID_RANGES = new Set(["NARROW", "MEDIUM", "WIDE", "NONE"]);
+
 function parseClaudeResult(raw: string, candidates: ScoredCandidate[]): ClaudeAnalysisResult {
   try {
     const parsed = JSON.parse(stripFence(raw)) as Omit<ClaudeAnalysisResult, "agent" | "timestamp"> & Partial<ClaudeAnalysisResult>;
     if (Array.isArray(parsed.results)) {
+      const results = parsed.results
+        .filter((item) => item && typeof item.poolAddress === "string" && item.poolAddress && typeof item.pair === "string" && item.pair)
+        .map((item) => ({
+          poolAddress: item.poolAddress,
+          pair: item.pair,
+          decision: VALID_DECISIONS.has(item.decision) ? item.decision : "PAPER_ONLY",
+          strategy: VALID_STRATEGIES.has(item.strategy) ? item.strategy : "AVOID",
+          range: VALID_RANGES.has(item.range) ? item.range : "NONE",
+          maxAllocation: typeof item.maxAllocation === "string" ? item.maxAllocation : "0%",
+          mainReason: typeof item.mainReason === "string" ? item.mainReason : "No reason provided by analyst output.",
+          exitRule: typeof item.exitRule === "string" ? item.exitRule : "Review manually; analyst output omitted an exit rule.",
+          confidence: Number.isFinite(item.confidence) ? item.confidence : 0
+        }));
       return {
         agent: "Claude Analyst Agent",
         timestamp: parsed.timestamp ?? nowIso(),
-        results: parsed.results,
-        bestPool: parsed.bestPool ?? "",
-        safestPool: parsed.safestPool ?? "",
-        highestFeeOpportunity: parsed.highestFeeOpportunity ?? "",
-        avoidList: parsed.avoidList ?? [],
-        summary: parsed.summary ?? ""
+        results,
+        bestPool: typeof parsed.bestPool === "string" ? parsed.bestPool : "",
+        safestPool: typeof parsed.safestPool === "string" ? parsed.safestPool : "",
+        highestFeeOpportunity: typeof parsed.highestFeeOpportunity === "string" ? parsed.highestFeeOpportunity : "",
+        avoidList: Array.isArray(parsed.avoidList) ? parsed.avoidList.filter((item): item is string => typeof item === "string") : [],
+        summary: typeof parsed.summary === "string" ? parsed.summary : ""
       };
     }
   } catch {

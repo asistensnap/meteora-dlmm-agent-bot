@@ -99,8 +99,8 @@ export class CommandHandler {
         await this.router.sendToTopic("OPERATOR", "Operator Update\nAgent: Lio\nStatus: /scan_now received. Real Meteora scan is not enabled yet; use /workflow_test for dummy routing.", msg.chat.id);
         await this.router.sendToTopic("SCREENING", this.lio.screeningResultMessage(), msg.chat.id);
         const workflow = this.lio.workflowMessages();
-        await this.router.sendToTopic("ANALYST", workflow.analyst, msg.chat.id);
-        await this.router.sendToTopic("RESULT", workflow.result, msg.chat.id);
+        if (workflow.analyst) await this.router.sendToTopic("ANALYST", workflow.analyst, msg.chat.id);
+        if (workflow.result) await this.router.sendToTopic("RESULT", workflow.result, msg.chat.id);
       });
     });
 

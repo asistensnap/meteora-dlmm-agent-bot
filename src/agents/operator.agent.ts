@@ -154,6 +154,11 @@ export class OperatorAgent {
       const result = analysis.results.find((item) => item.poolAddress === candidate.poolAddress);
       if (!result || result.confidence < config.scan.claudeConfidenceThreshold || result.decision === "AVOID") continue;
       const messageId = await sendAlert(formatOpportunityAlert(candidate, result, count + 1, this.mode));
+      if (messageId === undefined) {
+        // Send failed; leave the pool unmarked so the alert can retry next scan.
+        logger.warn({ poolAddress: candidate.poolAddress }, "alert send failed; not marking as alerted");
+        continue;
+      }
       markAlerted(candidate.poolAddress);
       this.repos.saveAlert({
         timestamp: new Date().toISOString(),

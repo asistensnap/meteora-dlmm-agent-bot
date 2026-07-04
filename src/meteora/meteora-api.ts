@@ -1,5 +1,6 @@
 import axios from "axios";
 import { config } from "../config.js";
+import { logger } from "../utils/logger.js";
 import type { MeteoraRawPool } from "./types.js";
 
 export class MeteoraApi {
@@ -12,11 +13,13 @@ export class MeteoraApi {
         const response = await axios.get<unknown>(`${baseUrl}${endpoint}`, { timeout: 20_000 });
         const rows = unwrapRows(response.data);
         if (rows.length > 0) return rows;
-      } catch {
+      } catch (error) {
+        logger.warn({ err: error, endpoint }, "Meteora API endpoint failed; trying next");
         continue;
       }
     }
 
+    logger.warn({ baseUrl }, "All Meteora API endpoints failed or returned no pools");
     return [];
   }
 }

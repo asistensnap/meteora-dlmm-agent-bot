@@ -8,16 +8,21 @@ export class TopicRouter {
 
   async sendToTopic(topic: TopicKey, message: string, fallbackChatId?: number | string): Promise<number | undefined> {
     const topicId = getTopicId(topic);
-    const chatId = topicId ? config.telegram.groupChatId ?? config.telegram.chatId ?? fallbackChatId : config.telegram.chatId ?? fallbackChatId;
+    const configuredChatId = topicId ? config.telegram.groupChatId ?? config.telegram.chatId : config.telegram.chatId;
+    const chatId = configuredChatId ?? fallbackChatId;
     if (!chatId) {
       logger.warn({ topic }, "Cannot send Telegram message because TELEGRAM_CHAT_ID is missing");
       return undefined;
     }
 
-    const text = topicId ? message : `[${topic}]\n${message}`;
+    // Only attach message_thread_id when sending to the configured group; a
+    // fallback chat (e.g. a private chat the command came from) has no topics
+    // and Telegram rejects thread ids there.
+    const useThread = Boolean(topicId) && chatId === configuredChatId;
+    const text = useThread ? message : `[${topic}]\n${message}`;
 
     try {
-      const sent = await this.bot.sendMessage(chatId, text, topicId ? { message_thread_id: topicId } : undefined);
+      const sent = await this.bot.sendMessage(chatId, text, useThread ? { message_thread_id: topicId } : undefined);
       if (!topicId) {
         logger.warn({ topic, topicName: TOPIC_NAMES[topic] }, "Telegram topic ID missing; sent to main chat");
         await this.warnMissingTopic(topic, chatId);

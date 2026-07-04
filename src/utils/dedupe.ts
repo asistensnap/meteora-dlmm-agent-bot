@@ -9,5 +9,9 @@ export function isDuplicateAlert(poolAddress: string, now = Date.now()): boolean
 }
 
 export function markAlerted(poolAddress: string, now = Date.now()): void {
+  const cooldownMs = config.scan.duplicateAlertCooldownMinutes * 60_000;
+  for (const [pool, alertedAt] of lastAlertByPool) {
+    if (now - alertedAt >= cooldownMs) lastAlertByPool.delete(pool);
+  }
   lastAlertByPool.set(poolAddress, now);
 }

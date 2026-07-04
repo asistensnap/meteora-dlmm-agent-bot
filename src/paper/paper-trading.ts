@@ -6,32 +6,38 @@ export class PaperTradingService {
   createPositions(candidates: ScoredCandidate[], analysis: ClaudeAnalysisResult): number {
     if (!config.execution.paperTrading) return 0;
     const db = openDb();
-    const stmt = db.prepare(`
-      INSERT INTO paper_positions (
-        entry_timestamp, pool_address, pair, strategy, range_recommendation,
-        score_at_entry, confidence_at_entry, status, notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'OPEN', ?)
-    `);
-
     let created = 0;
-    for (const result of analysis.results) {
-      const candidate = candidates.find((item) => item.poolAddress === result.poolAddress);
-      if (!candidate) continue;
-      const actionable = ["ENTER_SMALL", "WATCHLIST"].includes(result.decision);
-      if (!actionable || candidate.score < config.scan.alertScoreThreshold || result.confidence < config.scan.claudeConfidenceThreshold) continue;
-      stmt.run(
-        new Date().toISOString(),
-        candidate.poolAddress,
-        candidate.pair,
-        result.strategy,
-        result.range,
-        candidate.score,
-        result.confidence,
-        "Version 1 paper position. No real deposit executed."
-      );
-      created += 1;
+    try {
+      const stmt = db.prepare(`
+        INSERT INTO paper_positions (
+          entry_timestamp, pool_address, pair, strategy, range_recommendation,
+          score_at_entry, confidence_at_entry, status, notes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'OPEN', ?)
+      `);
+      const openExists = db.prepare("SELECT 1 FROM paper_positions WHERE pool_address = ? AND status = 'OPEN' LIMIT 1");
+
+      for (const result of analysis.results) {
+        const candidate = candidates.find((item) => item.poolAddress === result.poolAddress);
+        if (!candidate) continue;
+        const actionable = ["ENTER_SMALL", "WATCHLIST"].includes(result.decision);
+        if (!actionable || candidate.score < config.scan.alertScoreThreshold || result.confidence < config.scan.claudeConfidenceThreshold) continue;
+        // Idempotency guard: never stack a second OPEN paper position on the same pool.
+        if (openExists.get(candidate.poolAddress)) continue;
+        stmt.run(
+          new Date().toISOString(),
+          candidate.poolAddress,
+          candidate.pair,
+          result.strategy,
+          result.range,
+          candidate.score,
+          result.confidence,
+          "Version 1 paper position. No real deposit executed."
+        );
+        created += 1;
+      }
+    } finally {
+      db.close();
     }
-    db.close();
     return created;
   }
 }
