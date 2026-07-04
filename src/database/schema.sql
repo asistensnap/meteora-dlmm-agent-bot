@@ -83,3 +83,30 @@ CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
+
+-- Phase 2: simulated net-PnL tracking state per open paper position.
+CREATE TABLE IF NOT EXISTS position_tracking (
+  position_id INTEGER PRIMARY KEY,
+  entry_price REAL,
+  notional_usd REAL NOT NULL,
+  fees_earned_usd REAL NOT NULL DEFAULT 0,
+  il_usd REAL NOT NULL DEFAULT 0,
+  net_usd REAL NOT NULL DEFAULT 0,
+  in_range INTEGER NOT NULL DEFAULT 1,
+  oor_since TEXT,
+  last_cycle_at TEXT,
+  data_status TEXT NOT NULL DEFAULT 'OK'
+);
+
+-- Phase 2: per-cycle net-PnL history (feeds daily kill-switch drawdown).
+CREATE TABLE IF NOT EXISTS net_pnl_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  position_id INTEGER NOT NULL,
+  timestamp TEXT NOT NULL,
+  fees_earned_usd REAL NOT NULL,
+  il_usd REAL NOT NULL,
+  net_usd REAL NOT NULL,
+  net_pct REAL NOT NULL,
+  in_range INTEGER NOT NULL,
+  current_price REAL
+);

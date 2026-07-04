@@ -1,5 +1,6 @@
 import type TelegramBot from "node-telegram-bot-api";
 import { LioOperatorAgent } from "../agents/lio-operator.agent.js";
+import { ManagementCycle } from "../positions/management-cycle.js";
 import { formatTroubleshootReport } from "./troubleshoot.js";
 import { TopicRouter } from "./topic-router.js";
 
@@ -8,7 +9,8 @@ export class CommandHandler {
 
   constructor(
     bot: TelegramBot,
-    private readonly lio: LioOperatorAgent
+    private readonly lio: LioOperatorAgent,
+    private readonly management: ManagementCycle = new ManagementCycle()
   ) {
     this.router = new TopicRouter(bot);
   }
@@ -138,6 +140,18 @@ export class CommandHandler {
 
     bot.onText(/^\/evilpanda_strategy$/, async (msg) => {
       await this.handle(msg.chat.id, "/evilpanda_strategy", () => this.router.sendToTopic("SYSTEM", this.lio.evilPandaStrategy(), msg.chat.id));
+    });
+
+    bot.onText(/^\/positions_net$/, async (msg) => {
+      await this.handle(msg.chat.id, "/positions_net", () => this.router.sendToTopic("TRADE_LOG", this.management.positionsNetMessage(), msg.chat.id));
+    });
+
+    bot.onText(/^\/killswitch_status$/, async (msg) => {
+      await this.handle(msg.chat.id, "/killswitch_status", () => this.router.sendToTopic("SYSTEM", this.management.killSwitchStatus(), msg.chat.id));
+    });
+
+    bot.onText(/^\/killswitch_reset$/, async (msg) => {
+      await this.handle(msg.chat.id, "/killswitch_reset", () => this.router.sendToTopic("SYSTEM", this.management.killSwitchReset(), msg.chat.id));
     });
 
     bot.onText(/^\/execution_mode$/, async (msg) => {

@@ -220,6 +220,9 @@ See [docs/HERMES_SOULS.md](./docs/HERMES_SOULS.md).
 - `/trade_summary`
 - `/trade_log_test`
 - `/evilpanda_strategy`
+- `/positions_net`
+- `/killswitch_status`
+- `/killswitch_reset`
 
 Expected dummy workflow:
 
@@ -278,6 +281,30 @@ Behavior:
 - Divide portfolio into at least 6 positions.
 - Do not open new positions after 18:00 local time.
 - No revenge DLMM.
+
+## Position Management (Phase 2, simulated)
+
+All of these run in SCANNER_ONLY/dry-run mode with no on-chain action:
+
+- Net PnL per open paper position (fees earned estimate minus impermanent/conversion
+  loss estimate), updated every management cycle and shown by `/positions_net`.
+  Fee count alone is never treated as profit.
+- Daily kill-switch: if cumulative net drawdown exceeds `MAX_DAILY_DRAWDOWN_PCT`
+  (default 10), new positions are blocked, CLOSE-ALL is recommended via Telegram,
+  and a manual `/killswitch_reset` is required. `/killswitch_status` shows state.
+- Out-of-range alerting: when a tracked position's price leaves its simulated band,
+  an alert with position id, direction (up/down), and time-out-of-range posts to
+  🚀 Entry. OOR is treated as a stopped position, not a neutral state.
+- Startup reconciliation (read-only): on boot, open local positions are checked
+  against the live Meteora API and drift is reported to 📡 System. True on-chain
+  reconciliation activates only when a DLMM SDK is added (see
+  `src/positions/reconciliation.ts`).
+- Structured pino logging with position ids in core paths, and clearer startup
+  config validation errors listing each invalid `.env` key.
+
+Config: `MAX_DAILY_DRAWDOWN_PCT`, `PAPER_NOTIONAL_USD`, `MANAGEMENT_INTERVAL_MINUTES`,
+`MANAGEMENT_CYCLE_ENABLED` (set `false` to disable the cycle), `WALLET_PUBLIC_ADDRESS`
+(public address only; never a private key).
 
 ## Safety
 

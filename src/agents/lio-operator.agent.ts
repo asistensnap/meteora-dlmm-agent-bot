@@ -33,6 +33,9 @@ export class LioOperatorAgent {
       "/trade_summary",
       "/trade_log_test",
       "/evilpanda_strategy",
+      "/positions_net",
+      "/killswitch_status",
+      "/killswitch_reset",
       "/ping_all",
       "/execution_mode"
     ].join("\n");

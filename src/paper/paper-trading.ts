@@ -1,10 +1,18 @@
 import { config } from "../config.js";
 import { openDb } from "../database/db.js";
+import { KillSwitchService } from "../positions/kill-switch.js";
+import { logger } from "../utils/logger.js";
 import type { ClaudeAnalysisResult, ScoredCandidate } from "../types.js";
 
 export class PaperTradingService {
+  constructor(private readonly killSwitch = new KillSwitchService()) {}
+
   createPositions(candidates: ScoredCandidate[], analysis: ClaudeAnalysisResult): number {
     if (!config.execution.paperTrading) return 0;
+    if (this.killSwitch.isEngaged()) {
+      logger.warn("kill-switch engaged; refusing to open new paper positions");
+      return 0;
+    }
     const db = openDb();
     let created = 0;
     try {

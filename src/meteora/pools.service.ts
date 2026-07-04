@@ -51,6 +51,7 @@ function normalizePool(raw: MeteoraRawPool): NormalizedPool | null {
     farmApy: numberValue(raw.farm_apy ?? raw.farmApy),
     feePct: numberValue(raw.fee_pct ?? raw.feePct),
     binStep: numberValue(raw.bin_step ?? raw.binStep),
+    currentPrice: numberValue(raw.current_price ?? raw.currentPrice ?? raw.price) || undefined,
     poolCreatedAt,
     poolAgeHours: ageHoursFrom(poolCreatedAt),
     isBlacklisted: Boolean(raw.is_blacklisted ?? raw.isBlacklisted),

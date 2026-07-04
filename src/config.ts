@@ -73,11 +73,21 @@ const envSchema = z.object({
   DUPLICATE_ALERT_COOLDOWN_MINUTES: z.coerce.number().int().positive().default(30),
   ENABLE_REAL_EXECUTION: envBoolean.default(false),
   EMERGENCY_STOP: envBoolean.default(false),
-  RISK_MODE: z.enum(["CONSERVATIVE", "BALANCED", "AGGRESSIVE"]).default("BALANCED")
+  RISK_MODE: z.enum(["CONSERVATIVE", "BALANCED", "AGGRESSIVE"]).default("BALANCED"),
+  MAX_DAILY_DRAWDOWN_PCT: z.coerce.number().positive().max(100).default(10),
+  PAPER_NOTIONAL_USD: z.coerce.number().positive().default(1000),
+  MANAGEMENT_INTERVAL_MINUTES: z.coerce.number().int().positive().optional(),
+  MANAGEMENT_CYCLE_ENABLED: envBoolean.default(true),
+  WALLET_PUBLIC_ADDRESS: z.string().optional()
 });
 
 const parsed = envSchema.safeParse(process.env);
-if (!parsed.success) throw new Error(`Invalid environment config: ${parsed.error.message}`);
+if (!parsed.success) {
+  const issues = parsed.error.issues
+    .map((issue) => `  - ${issue.path.join(".") || "(root)"}: ${issue.message}`)
+    .join("\n");
+  throw new Error(`Invalid environment config. Fix these values in .env and restart:\n${issues}`);
+}
 
 const env = parsed.data;
 if (env.TELEGRAM_CHAT_ID?.trim().startsWith("@")) {
@@ -179,6 +189,14 @@ export const config = {
     mode: hasEnv("RISK_MODE") ? env.RISK_MODE : meridianConfig.screening.tokenRiskMode
   },
   meridian: meridianConfig,
+  positions: {
+    maxDailyDrawdownPct: env.MAX_DAILY_DRAWDOWN_PCT,
+    paperNotionalUsd: env.PAPER_NOTIONAL_USD,
+    managementIntervalMinutes: env.MANAGEMENT_INTERVAL_MINUTES ?? meridianConfig.screening.managementIntervalMinutes,
+    managementCycleEnabled: env.MANAGEMENT_CYCLE_ENABLED,
+    // Public wallet address only (read-only reconciliation); never a private key.
+    walletPublicAddress: firstDefined(env.WALLET_PUBLIC_ADDRESS)
+  },
   execution: {
     mode: env.EXECUTION_MODE === "PAPER_TRADING" ? "PAPER_TRADING" : "SCANNER_ONLY",
     paperTrading: env.PAPER_TRADING,

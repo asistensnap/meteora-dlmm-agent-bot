@@ -31,6 +31,7 @@ export interface NormalizedPool {
   farmApy?: number;
   feePct?: number;
   binStep?: number;
+  currentPrice?: number;
   poolCreatedAt?: string;
   poolAgeHours: number;
   isBlacklisted: boolean;
